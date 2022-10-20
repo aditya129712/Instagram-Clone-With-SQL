@@ -127,7 +127,7 @@ SELECT ROUND((SELECT COUNT(*)FROM photos)/(SELECT COUNT(*) FROM users),2);
 /*user ranking by postings higher to lower*/
 SELECT users.username,COUNT(photos.image_url)
 FROM users
-JOIN photos ON users.id = photos.user_id
+INNER JOIN photos ON users.id = photos.user_id
 GROUP BY users.id
 ORDER BY 2 DESC;
 
@@ -136,21 +136,21 @@ ORDER BY 2 DESC;
 SELECT SUM(user_posts.total_posts_per_user)
 FROM (SELECT users.username,COUNT(photos.image_url) AS total_posts_per_user
 		FROM users
-		JOIN photos ON users.id = photos.user_id
+		INNER JOIN photos ON users.id = photos.user_id
 		GROUP BY users.id) AS user_posts;
 
 
 /*total numbers of users who have posted at least one time */
 SELECT COUNT(DISTINCT(users.id)) AS total_number_of_users_with_posts
 FROM users
-JOIN photos ON users.id = photos.user_id;
+INNER JOIN photos ON users.id = photos.user_id;
 
 
 /*A brand wants to know which hashtags to use in a post
 What are the top 5 most commonly used hashtags?*/
 SELECT tag_name, COUNT(tag_name) AS total
 FROM tags
-JOIN photo_tags ON tags.id = photo_tags.tag_id
+INNER JOIN photo_tags ON tags.id = photo_tags.tag_id
 GROUP BY tags.id
 ORDER BY total DESC;
 
@@ -159,7 +159,7 @@ ORDER BY total DESC;
 Find users who have liked every single photo on the site*/
 SELECT users.id,username, COUNT(users.id) As total_likes_by_user
 FROM users
-JOIN likes ON users.id = likes.user_id
+INNER JOIN likes ON users.id = likes.user_id
 GROUP BY users.id
 HAVING total_likes_by_user = (SELECT COUNT(*) FROM photos);
 
@@ -168,14 +168,14 @@ HAVING total_likes_by_user = (SELECT COUNT(*) FROM photos);
 Find users who have never commented on a photo*/
 SELECT username,comment_text
 FROM users
-LEFT JOIN comments ON users.id = comments.user_id
+LEFT OUTER JOIN comments ON users.id = comments.user_id
 GROUP BY users.id
 HAVING comment_text IS NULL;
 
 SELECT COUNT(*) FROM
 (SELECT username,comment_text
 	FROM users
-	LEFT JOIN comments ON users.id = comments.user_id
+	LEFT OUTER JOIN comments ON users.id = comments.user_id
 	GROUP BY users.id
 	HAVING comment_text IS NULL) AS total_number_of_users_without_comments;
 
@@ -192,16 +192,16 @@ FROM
 		SELECT COUNT(*) AS total_A FROM
 			(SELECT username,comment_text
 				FROM users
-				LEFT JOIN comments ON users.id = comments.user_id
+				LEFT OUTER JOIN comments ON users.id = comments.user_id
 				GROUP BY users.id
 				HAVING comment_text IS NULL) AS total_number_of_users_without_comments
 	) AS tableA
-	JOIN
+	INNER JOIN
 	(
 		SELECT COUNT(*) AS total_B FROM
 			(SELECT users.id,username, COUNT(users.id) As total_likes_by_user
 				FROM users
-				JOIN likes ON users.id = likes.user_id
+				INNER JOIN likes ON users.id = likes.user_id
 				GROUP BY users.id
 				HAVING total_likes_by_user = (SELECT COUNT(*) FROM photos)) AS total_number_users_likes_every_photos
 	)AS tableB;
@@ -210,7 +210,7 @@ FROM
 /*Find users who have ever commented on a photo*/
 SELECT username,comment_text
 FROM users
-LEFT JOIN comments ON users.id = comments.user_id
+LEFT OUTER JOIN comments ON users.id = comments.user_id
 GROUP BY users.id
 HAVING comment_text IS NOT NULL;
 
@@ -218,7 +218,7 @@ HAVING comment_text IS NOT NULL;
 SELECT COUNT(*) FROM
 (SELECT username,comment_text
 	FROM users
-	LEFT JOIN comments ON users.id = comments.user_id
+	LEFT OUTER JOIN comments ON users.id = comments.user_id
 	GROUP BY users.id
 	HAVING comment_text IS NOT NULL) AS total_number_users_with_comments;
 
@@ -235,16 +235,16 @@ FROM
 		SELECT COUNT(*) AS total_A FROM
 			(SELECT username,comment_text
 				FROM users
-				LEFT JOIN comments ON users.id = comments.user_id
+				LEFT OUTER JOIN comments ON users.id = comments.user_id
 				GROUP BY users.id
 				HAVING comment_text IS NULL) AS total_number_of_users_without_comments
 	) AS tableA
-	JOIN
+	INNER JOIN
 	(
 		SELECT COUNT(*) AS total_B FROM
 			(SELECT username,comment_text
 				FROM users
-				LEFT JOIN comments ON users.id = comments.user_id
+				LEFT OUTER JOIN comments ON users.id = comments.user_id
 				GROUP BY users.id
 				HAVING comment_text IS NOT NULL) AS total_number_users_with_comments
 	)AS tableB
